@@ -1,10 +1,12 @@
 // backend.js
 import express from "express";
+import cors from "cors"; 
 
 const app = express();
 const port = 8000;
 
 app.use(express.json());
+app.use(cors()); 
 
 const users = {
   users_list: [
@@ -62,12 +64,17 @@ const deleteUserById = (id) => {
 	// if we can find the user, delete item starting at that index 
 	users["users_list"].splice(index, 1); 
 	return true; 
-}; 
+};
+
+const generateId = () => {
+	return Math.random().toString(36).substring(2, 8); 
+};
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
+  userToAdd.id = generateId(); 
   addUser(userToAdd);
-  res.send();
+  res.status(201).send(userToAdd);
 });
 
 app.get("/users/:id", (req, res) => {
@@ -104,7 +111,7 @@ app.delete("/users/:id", (req, res) => {
 	const deleted = deleteUserById(id); 
 
 	if (deleted) {
-		res.send(); 
+		res.status(204).send();  
 	} else {
 		res.status(404).send("Resource not found."); 
 	} 
